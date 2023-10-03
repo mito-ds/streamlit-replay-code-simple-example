@@ -29,11 +29,11 @@ _, generated_code = spreadsheet(
     }
 )
 
-if st.button("Save Generated Code to .py file"):
+if st.button("Save code to .py file"):
     # When the user clicks the button, save the generated_code returned by the spreadsheet 
     # component to a .py file in the /scripts directory.
     file_path = os.path.join(os.getcwd(), 'scripts', script_name + '.py')
     with open(file_path, 'w') as f:
         f.write(generated_code)
-        st.success(f"Saved generated the following code to {script_name}")
+        st.success(f"Saved the following code to {script_name}")
         st.code(generated_code)
