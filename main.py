@@ -1,6 +1,7 @@
 import streamlit as st
 from mitosheet.streamlit.v1 import spreadsheet
 import os
+import uuid
 
 st.set_page_config(layout='wide')
 st.title("Saving a Mito generated Python script to a .py file")
@@ -18,6 +19,9 @@ st.markdown("""Notice that the generated code is a function. This is the result 
 script_name = st.text_input('Script Name:', value='Automation Script')
 script_name_cleaned = script_name.replace(' ', '_').lower()
 
+if 'mito_key' not in st.session_state:
+    st.session_state['mito_key'] = str(uuid.uuid4())
+
 _, generated_code = spreadsheet(
     import_folder = './data',
     code_options={
@@ -27,7 +31,7 @@ _, generated_code = spreadsheet(
         'function_name': f'function_{script_name_cleaned}', 
         'function_params': {}
     },
-    key='mito-id'
+    key=st.session_state['mito_key'] 
 )
 
 if st.button("Save automation"):
@@ -45,7 +49,7 @@ if st.button("Save automation"):
             st.code(generated_code)
 
 if st.button("Create new automation"):
-    # Clear the app's resource cache and rerun the app 
-    # to start a new automation
-    st.cache_resource.clear()
+    # Update the mito_key and then rerun the app to reset
+    # the spreadsheet component 
+    st.session_state['mito_key'] = str(uuid.uuid4())
     st.rerun()
