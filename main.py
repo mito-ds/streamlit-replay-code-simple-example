@@ -30,18 +30,22 @@ _, generated_code = spreadsheet(
     key='mito-id'
 )
 
-if st.button("Save code to .py file"):
+if st.button("Save automation"):
     # When the user clicks the button, save the generated_code returned by the spreadsheet 
     # component to a .py file in the /scripts directory.
     file_path = os.path.join(os.getcwd(), 'scripts', script_name + '.py')
     with open(file_path, 'w') as f:
         f.write(generated_code)
-        st.success(f"Saved the following code to {script_name}. If you are happy with the automation, press the `Start new automation` button below. Otherwise, make edits to the code and press the `Save Generated Code to .py file` button again.")
+        st.success(f"""
+            Saved the following automation to {script_name}.py. 
+        
+            If you're happy with the automation, press the `Start new automation` button below. Otherwise, make edits to the code and press the `Save automation` button again.
+        """)
         with st.expander("View Generated Python Code", expanded=False):
             st.code(generated_code)
 
-    if st.button("Start new automation"):
-        # Clear the app's resource cache and rerun the app 
-        # to start a new automation
-        st.cache_resource.clear()
-        st.rerun()
+if st.button("Create new automation"):
+    # Clear the app's resource cache and rerun the app 
+    # to start a new automation
+    st.cache_resource.clear()
+    st.rerun()
