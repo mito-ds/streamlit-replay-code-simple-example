@@ -1,6 +1,7 @@
 import streamlit as st
 from mitosheet.streamlit.v1 import spreadsheet
 import os
+import uuid
 
 st.set_page_config(layout='wide')
 st.title("Saving a Mito generated Python script to a .py file")
@@ -18,6 +19,9 @@ st.markdown("""Notice that the generated code is a function. This is the result 
 script_name = st.text_input('Script Name:', value='Automation Script')
 script_name_cleaned = script_name.replace(' ', '_').lower()
 
+if 'mito_key' not in st.session_state:
+    st.session_state['mito_key'] = str(uuid.uuid4())
+
 _, generated_code = spreadsheet(
     import_folder = './data',
     code_options={
@@ -26,14 +30,26 @@ _, generated_code = spreadsheet(
         'call_function': True, 
         'function_name': f'function_{script_name_cleaned}', 
         'function_params': {}
-    }
+    },
+    key=st.session_state['mito_key'] 
 )
 
-if st.button("Save code to .py file"):
+if st.button("Save automation"):
     # When the user clicks the button, save the generated_code returned by the spreadsheet 
     # component to a .py file in the /scripts directory.
     file_path = os.path.join(os.getcwd(), 'scripts', script_name + '.py')
     with open(file_path, 'w') as f:
         f.write(generated_code)
-        st.success(f"Saved the following code to {script_name}")
-        st.code(generated_code)
+        st.success(f"""
+            Saved the following automation to {script_name}.py. 
+        
+            If you're happy with the automation, press the `Start new automation` button below. Otherwise, make edits to the code and press the `Save automation` button again.
+        """)
+        with st.expander("View Generated Python Code", expanded=False):
+            st.code(generated_code)
+
+if st.button("Create new automation"):
+    # Update the mito_key and then rerun the app to reset
+    # the spreadsheet component 
+    st.session_state['mito_key'] = str(uuid.uuid4())
+    st.rerun()
