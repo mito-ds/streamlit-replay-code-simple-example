@@ -61,22 +61,31 @@ with tabs[1]:
     st.markdown("""To rerun an existing automation on a new dataset, follow these steps:     
 1. Select the automation you want to rerun from the dropdown menu below. 
 2. Upload a new version of the dataset you want to apply the automation to. 
-3. Click the `Run` button to rerun the automation. \
+3. Click the `Run` button to rerun the automation.
     """)
 
-    # Read the scripts from the /scripts directory
+    # Read the scripts from the /scripts directory so the user can select one
     analysis_names = os.listdir(os.path.join(os.getcwd(), 'scripts'))
-    selected_analysis_name = st.selectbox("Select an automation", analysis_names)
+    analysis_names = [name for name in analysis_names if name.endswith('.json')]
     
+    if len(analysis_names) == 0:
+        st.error("There are no existing automations. Create an automation first and then use this tab to rerun it on a new dataset.")
+        st.stop()
+    
+    selected_analysis_name = st.selectbox("Select an automation", analysis_names)
+        
+    # Load JSON representation of the analysis and parse it back into a RunnableAnalysis object
+    # so we can use the Mito analysis utilities to replay the analysis on a different dataset.
     with open(os.path.join(os.getcwd(), 'scripts', selected_analysis_name), 'r') as f:
         analysis_json = f.read()
     
         analysis = RunnableAnalysis.from_json(analysis_json)
     
-    # Create an object to store the new values for the parameters
+    # Loop through the imports used in the analysis so the user can upload a new version of each file
+    # Learn more about the get_param_metadata method here: https://docs.trymito.io/mito-for-streamlit/api-reference/runnableanalysis-class#get_param_metadata-param_type-literal-import-export
     updated_metadata = {}
-    # Loop through the parameters in the analysis to display imports
-    for idx, param in enumerate(analysis.get_param_metadata()):
+    analysis_metadata = analysis.get_param_metadata()
+    for idx, param in enumerate(analysis_metadata):
         new_param = None
             
         # For imports that are file imports, display a file uploader
@@ -92,5 +101,6 @@ with tabs[1]:
     run = st.button('Run')
     if run:
         result = analysis.run(**updated_metadata)
-        st.write(result)
+        for sheet in result:
+            st.write(sheet)
     
