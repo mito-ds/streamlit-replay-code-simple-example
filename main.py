@@ -2,6 +2,7 @@ import streamlit as st
 from mitosheet.streamlit.v1 import spreadsheet, RunnableAnalysis
 import os
 import uuid
+import pandas as pd
 
 st.set_page_config(layout='wide')
 st.title("Automation Hub Example")
@@ -101,6 +102,13 @@ with tabs[1]:
     run = st.button('Run')
     if run:
         result = analysis.run(**updated_metadata)
-        for sheet in result:
-            st.write(sheet)
+        
+        # If result is a pandas DataFrame, we can just display it
+        if isinstance(result, pd.DataFrame):
+            st.write(result)
+            
+        # If result is a tuple, we need to loop through the sheets and display each one
+        elif isinstance(result, tuple):
+            for sheet in result:
+                st.write(sheet)
     
