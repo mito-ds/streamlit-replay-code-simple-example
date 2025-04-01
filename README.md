@@ -1,6 +1,8 @@
-# Save Mito Generated Code to .py file
+# Automation Hub Example
 
-This repo is the simplest example of saving Mito generated code to a .py file in Streamlit.
+This repo is a simple example of how to use the Mito Automation Hub to save and rerun automations on different datasets.
+
+![App Screenshot](app-screenshot.png)
 
 ### Run the app locally:
 1. Clone this repo
